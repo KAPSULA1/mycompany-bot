@@ -1,51 +1,48 @@
 from telegram import Update, ReplyKeyboardMarkup
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 import os
+import logging
 
-# Load token
+# Enable logging
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
+
 TOKEN = os.environ.get("BOT_TOKEN")
 
-# 1️⃣ /start command with a keyboard
-def start(update: Update, context: CallbackContext):
-    keyboard = [["About Us", "Contact"], ["Services", "Help"], ["pricing"]]
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    keyboard = [["About Us", "Contact"], ["Services", "Help"], ["Pricing"]]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-    update.message.reply_text(
-        "Welcome! 👋 Choose an option:", reply_markup=reply_markup
-    )
+    await update.message.reply_text("Welcome! 👋 Choose an option:", reply_markup=reply_markup)
 
-# 2️⃣ Button responses
-def button_response(update: Update, context: CallbackContext):
-    text = update.message.text.lower()  # make it case-insensitive
-
+async def button_response(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    text = update.message.text.lower()
+    
     if text == "about us":
-        update.message.reply_text("We are MyCompany, helping you achieve success!")
+        await update.message.reply_text("We are MyCompany, helping you achieve success!")
     elif text == "contact":
-        update.message.reply_text("Contact us at: email@example.com or +123456789")
+        await update.message.reply_text("Contact us at: email@example.com or +123456789")
     elif text == "services":
-        update.message.reply_text("We offer consulting, support, and more!")
+        await update.message.reply_text("We offer consulting, support, and more!")
     elif text == "help":
-        update.message.reply_text("Ask anything or type /start to see the menu again.")
+        await update.message.reply_text("Ask anything or type /start to see the menu again.")
     elif text == "pricing":
-        update.message.reply_text("Our pricing starts at 99$/month/ Contac us ;)")
-
+        await update.message.reply_text("Our pricing starts at 99$/month. Contact us!")
     else:
-        update.message.reply_text(f"Sorry, I don't understand: {update.message.text}")
+        await update.message.reply_text(f"Sorry, I don't understand: {update.message.text}")
 
-# 3️⃣ Main function to run the bot
 def main():
-    updater = Updater(TOKEN, use_context=True)
-    dp = updater.dispatcher
-
-    # Commands
-    dp.add_handler(CommandHandler("start", start))
-
-    # Catch all messages for buttons or other input
-    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, button_response))
-
-    updater.start_polling()
-    print("Bot is running...")
-    updater.idle()
+    # Create the Application
+    application = Application.builder().token(TOKEN).build()
+    
+    # Add handlers
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, button_response))
+    
+    # Run the bot
+    print("Bot is starting...")
+    application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == "__main__":
     main()
-
