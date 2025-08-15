@@ -1,0 +1,51 @@
+from telegram import Update, ReplyKeyboardMarkup
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+import os
+
+# Load token
+TOKEN = os.environ.get("BOT_TOKEN")
+
+# 1️⃣ /start command with a keyboard
+def start(update: Update, context: CallbackContext):
+    keyboard = [["About Us", "Contact"], ["Services", "Help"], ["pricing"]]
+    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+    update.message.reply_text(
+        "Welcome! 👋 Choose an option:", reply_markup=reply_markup
+    )
+
+# 2️⃣ Button responses
+def button_response(update: Update, context: CallbackContext):
+    text = update.message.text.lower()  # make it case-insensitive
+
+    if text == "about us":
+        update.message.reply_text("We are MyCompany, helping you achieve success!")
+    elif text == "contact":
+        update.message.reply_text("Contact us at: email@example.com or +123456789")
+    elif text == "services":
+        update.message.reply_text("We offer consulting, support, and more!")
+    elif text == "help":
+        update.message.reply_text("Ask anything or type /start to see the menu again.")
+    elif text == "pricing":
+        update.message.reply_text("Our pricing starts at 99$/month/ Contac us ;)")
+
+    else:
+        update.message.reply_text(f"Sorry, I don't understand: {update.message.text}")
+
+# 3️⃣ Main function to run the bot
+def main():
+    updater = Updater(TOKEN, use_context=True)
+    dp = updater.dispatcher
+
+    # Commands
+    dp.add_handler(CommandHandler("start", start))
+
+    # Catch all messages for buttons or other input
+    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, button_response))
+
+    updater.start_polling()
+    print("Bot is running...")
+    updater.idle()
+
+if __name__ == "__main__":
+    main()
+
