@@ -28,7 +28,7 @@ async def button_response(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif text == "help":
         await update.message.reply_text("Ask anything or type /start to see the menu again.")
     elif text == "pricing":
-        await update.message.reply_text("Our pricing starts at 99$/month. Contact us!")
+        await update.message.reply_text("Our pricing starts at 2222$/month. Contact us!")
     else:
         await update.message.reply_text(f"Sorry, I don't understand: {update.message.text}")
 
